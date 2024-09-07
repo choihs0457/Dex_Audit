@@ -1,35 +1,33 @@
-# DEX - Upside Academy Audit
+### DEX - Upside Academy audit
 
-**hakid19* DEX에 대한 감사 보고서*
+ **jacqueline*_DEX에 대한 감사 보고서*
 
 ---
 
-## 1. 요약 (Executive Summary)
+### **1. 요약 (Executive Summary)**
 
 감사 프로세스에 대한 간략한 개요를 제공하며, 목표, 범위 및 주요 발견 사항에 대한 요약을 포함합니다.
 
-- **감사 시작일**: 2024.09.03
-- **감사 종료일**: 2024.09.03
+- **감사 시작일**: 2024.09.06
+- **감사 종료일**: 2024.09.06
 - **감사자**: bob
 - **주요 발견 사항**:
-  - 1 개의 중간 위험도 이슈 (Medium Issues)
-  - 1 개의 낮은 위험도 이슈 (Low Issues)
-  - 1 개의 정보성 이슈 (Informational Issues)
+    - 1개의 치명적 이슈 (Critical Issues)
+    - 1개의 높은 위험도 이슈 (High Issues)
 
 ---
 
-## 2. 감사 개요 (Audit Overview)
+### **2. 감사 개요 (Audit Overview)**
 
 - **감사 이름**: DEX_Audit
 - **대상 버전 / 커밋 ID**:
-  - [Dex.sol Source Code](https://github.com/hakid29/Dex_solidity/blob/main/src/Dex.sol/)
-  - [Commit ID: 0f49cc9c5179fd611c90028dc67f8a10378d23b8](https://github.com/hakid29/Dex_solidity/commit/0f49cc9c5179fd611c90028dc67f8a10378d23b8)
+    - https://github.com/je1att0/DEX_solidity/blob/main/src/DEX.sol / https://github.com/je1att0/DEX_solidity/commit/6974ccbabbfdf24a32ca8390aa39dbc4a0f58929
 - **적용 기술**: Smart contracts
 - **기술 스택**: Smart contracts [Solidity]
 
 ---
 
-## 3. 심각도 범주 (Severity Categories)
+### **3. 심각도 범주 (Severity Categories)**
 
 - **치명적 (Critical)**: 공격 비용이 낮고, 서비스의 가용성에 영향을 주거나 금전적 이득을 취할 수 있는 취약점.
 - **높음 (High)**: 서비스 운영에 명확한 문제를 초래할 수 있는 취약점. 공격 비용이 높더라도 영향이 큰 경우 포함.
@@ -39,54 +37,43 @@
 
 ---
 
-## 4. 취약점 요약 (Finding Breakdown by Severity)
+### **4. 취약점 요약 (Finding Breakdown by Severity)**
 
 각 취약점의 심각도에 따른 분류를 요약합니다.
 
 - **치명적 (Critical)**
-  - 없음
+    - **#2**
 - **높음 (High)**
-  - 없음
+    - #1
 - **중간 (Medium)**
-  - **#1**
+    - 
 - **낮음 (Low)**
-  - **#3**
+    - 
 - **정보성 (Informational)**
-  - **#2**
+    - 
 
 ---
 
-## 5. 상세 취약점 (Detailed Findings)
+### **5. 상세 취약점 (Detailed Findings)**
 
-### **취약점 #1:** `addLiquidity` 함수의 초기 유동성 문제
+### **취약점 #1: LP token 을 모두 발행해서 컨트랙이 소유**
 
-- **심각도 (Severity)**: **중간 (Medium)**
-- **라인 (Line)**: `src/Dex.sol : 30`
+- **심각도 (Severity)**: **높음 (High)**
+- **라인 (Line)**: src/Dex.sol : 60
 - **설명 (Description)**
-  - 초기 유동성을 작게 공급하면 초기 가격이 실제 시장의 가격과 많은 차이를 보이게 된다.
+    - LP토큰에 대해 모두 발행을 해놓고 보내주는 방식으로 구현되어 있기 때문에 유저들은 해당 프로토콜을 100퍼센트 신뢰한 상태로 사용을 해야한다.
 - **영향 (Impact)**
-  - 초기에 이를 인지하지 못 한 유저가 스왑을 하게 되면 실제 거래가 보다 훨씬 상회하는 금액을 지불하고 토큰을 사는 현상이 발생 할 수 있다.
+    - 컨트랙 소유자가 유동성이 공급된 만큼 토큰을 털어버리면 모든 자산을 빼갈 수 있다.
 - **추천 사항 (Recommendation)**
-  - 최소 유동성을 제시하거나, 신뢰 할 수 있는 계약자로부터 유동성을 공급받는다.
+    - 유저가 유동성을 제공함에 따라 자연스럽게 mint 되도록 구현 방식을 수정한다.
 
-### **취약점 #2:** 하드코딩된 수수료
+### **취약점 #2: `removeLiquidity` 에서 호출한 유저검증 미흡**
 
-- **심각도 (Severity)**: **정보성 (Informational)**
-- **라인 (Line)**: `src/Dex.sol : 14`
+- **심각도 (Severity)**: **치명적 (Critical)**
+- **라인 (Line)**: src/Dex.sol : 50
 - **설명 (Description)**
-  - 하드 코딩된 수수료로 인해 이후에 수수료에 대한 수정이 불가능하다.
+    - 함수를 아무나 호출 할 수 있는데, 호출하는 유저에 대한 검증을 하지 않는다.
 - **영향 (Impact)**
-  - 수수료 정책을 수정함에 따라 유동적으로 수수료를 관리할 수 없게 되어, 시장의 흐름에 맞출 수 없게 됨.
+    - 유동성이 공급되어있을 때 아무나 **`removeLiquidity`함수를 호출하면 누구든 유동성을 빼갈 수 있다.**
 - **추천 사항 (Recommendation)**
-  - `FeeRate`에 대한 수정 권한을 owner에게 주고 수정할 수 있는 코드 구현.
-
-### **취약점 #3:** `addLiquidity` 함수에서 토큰 전송 이전의 유효성 검사
-
-- **심각도 (Severity)**: **낮음 (Low)**
-- **라인 (Line)**: `src/Dex.sol : 86`
-- **설명 (Description)**
-  - 토큰 전송 전 유효성 검사를 수행하지 않으면 금액이 없는 상태에서도 함수가 호출될 수 있다.
-- **영향 (Impact)**
-  - 가스비의 낭비로 이어질 수 있다.
-- **추천 사항 (Recommendation)**
-  - 전송 이전 유효성 검사 로직 추가.
+    - 함수 호출에 대한 접근 권한을 제어하고 전체 발행된 토큰량을 기준으로 `burn`을 시키면서 비율만큼 유동성을 반환시켜주는 식으로 로직을 바꾼다.
